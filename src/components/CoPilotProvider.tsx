@@ -1,7 +1,7 @@
 
 import React from "react";
-import { CopilotKit, CopilotTextarea } from "@copilotkit/react-ui";
-import { CopilotProvider } from "@copilotkit/react-core";
+import { CopilotTextarea } from "@copilotkit/react-ui";
+import { CopilotProvider as CopilotKitProvider } from "@copilotkit/react-core";
 
 interface CoPilotProviderWrapperProps {
   children: React.ReactNode;
@@ -9,9 +9,9 @@ interface CoPilotProviderWrapperProps {
 
 export const CoPilotProviderWrapper = ({ children }: CoPilotProviderWrapperProps) => {
   return (
-    <CopilotProvider>
+    <CopilotKitProvider>
       {children}
-    </CopilotProvider>
+    </CopilotKitProvider>
   );
 };
 
