@@ -1,6 +1,7 @@
 
 import React from "react";
-import { CopilotKit, CopilotTextarea } from "@copilotkit/react-ui";
+import { CopilotKit } from "@copilotkit/react-core";
+import { CopilotTextarea } from "@copilotkit/react-ui";
 import { Role, TextMessage } from "@copilotkit/runtime-client-gql";
 
 interface CoPilotProviderWrapperProps {
