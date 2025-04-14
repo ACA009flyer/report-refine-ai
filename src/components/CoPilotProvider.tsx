@@ -1,7 +1,7 @@
 
 import React from "react";
-import { CopilotTextarea } from "@copilotkit/react-ui";
-import { CopilotProvider as CopilotKitProvider } from "@copilotkit/react-core";
+import { CopilotKit, CopilotTextarea } from "@copilotkit/react-ui";
+import { Role, TextMessage } from "@copilotkit/runtime-client-gql";
 
 interface CoPilotProviderWrapperProps {
   children: React.ReactNode;
@@ -9,9 +9,9 @@ interface CoPilotProviderWrapperProps {
 
 export const CoPilotProviderWrapper = ({ children }: CoPilotProviderWrapperProps) => {
   return (
-    <CopilotKitProvider>
+    <CopilotKit publicApiKey="ck_pub_16098ba03127d42d2b4a38dea6995a89">
       {children}
-    </CopilotKitProvider>
+    </CopilotKit>
   );
 };
 
