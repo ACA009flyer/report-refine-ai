@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ReportData } from "@/types/report";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+import { CoPilotTextareaField } from "@/components/CoPilotProvider";
 
 interface ShiftReportFormProps {
   reportData: ReportData;
@@ -55,12 +56,15 @@ const ShiftReportForm = ({
             Shift Activity Description * (Paste your raw report here for AI analysis)
           </label>
           <div className="relative">
-            <Textarea
-              placeholder="Enter a detailed description of what happened during your shift (4+ sentences)"
+            <CoPilotTextareaField
               value={reportData.activityDescription}
-              onChange={(e) => onInputChange("activityDescription", e.target.value)}
-              className="border-gray-300"
+              onChange={(value) => onInputChange("activityDescription", value)}
+              placeholder="Enter a detailed description of what happened during your shift (4+ sentences)"
               rows={10}
+              className={`border-gray-300 ${reportData.isAnalyzing ? "bg-gray-50" : ""}`}
+              copilotProps={{
+                instructions: `Help me write a professional shift report about my patrol activities. Improve grammar, organization, and clarity. Make it sound professional.`,
+              }}
             />
             {reportData.isAnalyzing && (
               <div className="absolute top-2 right-2 bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs flex items-center">
