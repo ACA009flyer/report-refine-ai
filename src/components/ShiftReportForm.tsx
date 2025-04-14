@@ -52,39 +52,50 @@ const ShiftReportForm = ({
 
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            How was driving? Any poor drivers? *
+            Shift Activity Description * (Paste your raw report here for AI analysis)
+          </label>
+          <div className="relative">
+            <Textarea
+              placeholder="Enter a detailed description of what happened during your shift (4+ sentences)"
+              value={reportData.activityDescription}
+              onChange={(e) => onInputChange("activityDescription", e.target.value)}
+              className="border-gray-300"
+              rows={10}
+            />
+            {reportData.isAnalyzing && (
+              <div className="absolute top-2 right-2 bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs flex items-center">
+                <Loader2 className="animate-spin h-3 w-3 mr-1" />
+                Analyzing report...
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Enter your shift activity to automatically analyze driving conditions, incidents, and issues.
+          </p>
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Driving Conditions (Auto-analyzed)
           </label>
           <Textarea
-            placeholder="Describe any incidents involving poor driving"
+            placeholder="AI will analyze your report for driving conditions"
             value={reportData.poorDrivers}
             onChange={(e) => onInputChange("poorDrivers", e.target.value)}
-            className="border-gray-300"
+            className={`border-gray-300 ${reportData.isAnalyzing ? "bg-gray-50" : ""}`}
             rows={2}
           />
         </div>
 
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Shift Activity Description * (Paste your raw report here for formatting and improvement)
+            Incidents with People, Troopers, Civilians, or Other Department Staff (Auto-analyzed)
           </label>
           <Textarea
-            placeholder="Enter a detailed description of what happened during your shift (4+ sentences)"
-            value={reportData.activityDescription}
-            onChange={(e) => onInputChange("activityDescription", e.target.value)}
-            className="border-gray-300"
-            rows={10}
-          />
-        </div>
-
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Incidents with People, Troopers, Civilians, or Other Department Staff
-          </label>
-          <Textarea
-            placeholder="Describe any incidents with other personnel"
+            placeholder="AI will analyze your report for incidents"
             value={reportData.incidents}
             onChange={(e) => onInputChange("incidents", e.target.value)}
-            className="border-gray-300"
+            className={`border-gray-300 ${reportData.isAnalyzing ? "bg-gray-50" : ""}`}
             rows={4}
           />
         </div>
@@ -109,26 +120,26 @@ const ShiftReportForm = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Issues with Other Troopers?
+            Issues with Other Troopers? (Auto-analyzed)
           </label>
           <Textarea
-            placeholder="Describe any issues with other troopers"
+            placeholder="AI will analyze your report for trooper issues"
             value={reportData.trooperIssues}
             onChange={(e) => onInputChange("trooperIssues", e.target.value)}
-            className="border-gray-300"
+            className={`border-gray-300 ${reportData.isAnalyzing ? "bg-gray-50" : ""}`}
             rows={2}
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Vehicle Accidents?
+            Vehicle Accidents? (Auto-analyzed)
           </label>
           <Textarea
-            placeholder="Describe any vehicle accidents"
+            placeholder="AI will analyze your report for accidents"
             value={reportData.accident}
             onChange={(e) => onInputChange("accident", e.target.value)}
-            className="border-gray-300"
+            className={`border-gray-300 ${reportData.isAnalyzing ? "bg-gray-50" : ""}`}
             rows={2}
           />
         </div>
@@ -179,7 +190,6 @@ const ShiftReportForm = ({
             !reportData.callsign || 
             !reportData.car || 
             !reportData.activityDescription || 
-            !reportData.poorDrivers ||
             isProcessing
           }
         >

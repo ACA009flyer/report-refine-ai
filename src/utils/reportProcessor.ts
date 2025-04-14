@@ -86,3 +86,95 @@ function formatIntoParagraphs(text: string): string {
   
   return paragraphs.join("\n\n");
 }
+
+// New function to extract driving information from the report
+export function extractDrivingInfo(text: string): string {
+  if (!text) return "";
+  
+  const drivingKeywords = [
+    /\b(?:driving|drove|drive|car handling|tires|tyres|slippery|vehicle)\b/i,
+    /\b(?:skid|skidded|control|road condition|road|highways|highway)\b/i,
+    /\b(?:lost control|lost traction|car performed|performance)\b/i
+  ];
+  
+  const sentences = splitIntoSentences(text);
+  const relevantSentences = sentences.filter(sentence => 
+    drivingKeywords.some(keyword => keyword.test(sentence))
+  );
+
+  if (relevantSentences.length === 0) {
+    return "Vehicle handled well during the shift. No notable driving conditions to report.";
+  }
+  
+  return relevantSentences.join(" ");
+}
+
+// New function to extract incidents with personnel
+export function extractIncidents(text: string): string {
+  if (!text) return "";
+  
+  const incidentKeywords = [
+    /\b(?:civilian|civilians|civ|civs|people|crowd|person)\b/i,
+    /\b(?:interaction|confrontation|talked|conversation|argued)\b/i,
+    /\b(?:incident|department|staff|personnel|officer|officers)\b/i,
+    /\b(?:sheriff|deputies|deputy|police|fbi agent|fbi agents)\b/i
+  ];
+  
+  const sentences = splitIntoSentences(text);
+  const relevantSentences = sentences.filter(sentence => 
+    incidentKeywords.some(keyword => keyword.test(sentence))
+  );
+
+  if (relevantSentences.length === 0) {
+    return "No significant incidents with other personnel to report.";
+  }
+  
+  return relevantSentences.join(" ");
+}
+
+// New function to extract issues with other troopers
+export function extractTrooperIssues(text: string): string {
+  if (!text) return "";
+  
+  const trooperKeywords = [
+    /\b(?:trooper|troopers|officers|officer)\b/i,
+    /\b(?:backup|responded|response|arrived)\b/i,
+    /\b(?:issue|problem|conflict|disagreement|argument|coordination)\b/i,
+    /\b(?:radio|communication|misunderstanding)\b/i
+  ];
+  
+  const sentences = splitIntoSentences(text);
+  const relevantSentences = sentences.filter(sentence => 
+    trooperKeywords.some(keyword => keyword.test(sentence)) &&
+    /\b(?:issue|problem|conflict|disagreement|argument|no|not|never|didn't|did not|failed|miscommunication)\b/i.test(sentence)
+  );
+
+  if (relevantSentences.length === 0) {
+    return "No issues with other troopers during this shift.";
+  }
+  
+  return relevantSentences.join(" ");
+}
+
+// New function to extract accident information
+export function extractAccidents(text: string): string {
+  if (!text) return "";
+  
+  const accidentKeywords = [
+    /\b(?:crash|crashed|accident|collision|hit|ram|rammed)\b/i,
+    /\b(?:bumped|bump|scratched|scratch|damaged|damage)\b/i,
+    /\b(?:pit maneuver|pit manoeuvre|pit)\b/i,
+    /\b(?:vehicle damage|car damage|repair|fixed)\b/i
+  ];
+  
+  const sentences = splitIntoSentences(text);
+  const relevantSentences = sentences.filter(sentence => 
+    accidentKeywords.some(keyword => keyword.test(sentence))
+  );
+
+  if (relevantSentences.length === 0) {
+    return "No accidents or vehicle damage to report during this shift.";
+  }
+  
+  return relevantSentences.join(" ");
+}

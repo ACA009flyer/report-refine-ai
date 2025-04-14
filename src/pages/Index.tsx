@@ -3,7 +3,7 @@ import { useState } from "react";
 import ShiftReportForm from "@/components/ShiftReportForm";
 import ReportPreview from "@/components/ReportPreview";
 import Header from "@/components/Header";
-import { processReport } from "@/utils/reportProcessor";
+import { processReport, extractDrivingInfo, extractIncidents, extractTrooperIssues, extractAccidents } from "@/utils/reportProcessor";
 import { ReportData } from "@/types/report";
 
 const Index = () => {
@@ -19,6 +19,7 @@ const Index = () => {
     weapons: "",
     lcNote: "",
     commNote: "",
+    isAnalyzing: false
   });
   
   const [processedReport, setProcessedReport] = useState<string>("");
@@ -27,6 +28,36 @@ const Index = () => {
 
   const handleInputChange = (field: keyof ReportData, value: string) => {
     setReportData((prev) => ({ ...prev, [field]: value }));
+    
+    // Auto-analyze the report when activity description changes
+    if (field === "activityDescription" && value.length > 100) {
+      analyzeReport(value);
+    }
+  };
+  
+  const analyzeReport = async (activityText: string) => {
+    setReportData(prev => ({ ...prev, isAnalyzing: true }));
+    
+    try {
+      // Extract information from the report
+      const drivingInfo = extractDrivingInfo(activityText);
+      const incidentInfo = extractIncidents(activityText);
+      const trooperIssueInfo = extractTrooperIssues(activityText);
+      const accidentInfo = extractAccidents(activityText);
+      
+      // Update the report data with the extracted information
+      setReportData(prev => ({
+        ...prev,
+        poorDrivers: drivingInfo,
+        incidents: incidentInfo,
+        trooperIssues: trooperIssueInfo,
+        accident: accidentInfo,
+        isAnalyzing: false
+      }));
+    } catch (error) {
+      console.error("Error analyzing report:", error);
+      setReportData(prev => ({ ...prev, isAnalyzing: false }));
+    }
   };
 
   const handleSubmit = async () => {
@@ -47,7 +78,7 @@ const Index = () => {
 
 **Vehicle Used:** ${reportData.car}
 
-**Driving Incidents:** ${reportData.poorDrivers}
+**Driving Conditions/Incidents:** ${reportData.poorDrivers}
 
 **Shift Activity:**
 ${processed}
