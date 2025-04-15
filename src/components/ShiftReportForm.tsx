@@ -65,7 +65,7 @@ const ShiftReportForm = ({
             />
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            Enter your shift activity details and use the AI assistant to help format and enhance your report.
+            Enter your shift activity details. Format follows San Andreas State Troopers standards.
           </p>
         </div>
 
