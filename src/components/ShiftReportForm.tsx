@@ -12,13 +12,15 @@ interface ShiftReportFormProps {
   onInputChange: (field: keyof ReportData, value: string) => void;
   onSubmit: () => void;
   isProcessing: boolean;
+  onAnalyzeText: (text: string) => void;
 }
 
 const ShiftReportForm = ({ 
   reportData, 
   onInputChange, 
   onSubmit,
-  isProcessing
+  isProcessing,
+  onAnalyzeText
 }: ShiftReportFormProps) => {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -62,10 +64,11 @@ const ShiftReportForm = ({
               onChange={(value) => onInputChange("activityDescription", value)}
               className="border-gray-300"
               rows={10}
+              onAnalyze={onAnalyzeText}
             />
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            Enter your shift activity details. Format follows San Andreas State Troopers standards.
+            Enter your shift activity details. AI will analyze and format your report automatically.
           </p>
         </div>
 

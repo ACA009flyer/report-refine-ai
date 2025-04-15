@@ -16,7 +16,8 @@ export const CoPilotTextareaField = ({
   placeholder, 
   rows = 10, 
   className = "", 
-  copilotProps = {}
+  copilotProps = {},
+  onAnalyze = () => {}
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -24,15 +25,62 @@ export const CoPilotTextareaField = ({
   rows?: number;
   className?: string;
   copilotProps?: Record<string, any>;
+  onAnalyze?: (text: string) => void;
 }) => {
-  // Since we can't use CopilotTextarea, we'll create a simple textarea with similar functionality
+  // Create a textarea with basic AI enhancement functionality
+  const [analyzing, setAnalyzing] = React.useState(false);
+  const [isTyping, setIsTyping] = React.useState(false);
+  const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    onChange(newValue);
+    
+    // Set typing indicator and clear previous timeout
+    setIsTyping(true);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    // Set a new timeout to detect when typing has stopped
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      // If there's substantial content, trigger analysis
+      if (newValue.length > 100) {
+        onAnalyze(newValue);
+      }
+    }, 1500);
+  };
+
+  const handleAnalyzeClick = () => {
+    if (value && value.length > 0) {
+      setAnalyzing(true);
+      onAnalyze(value);
+      setTimeout(() => setAnalyzing(false), 1000);
+    }
+  };
+
   return (
-    <textarea
-      className={`w-full border border-gray-300 rounded-md p-2 ${className}`}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder || "Enter text here..."}
-      rows={rows}
-    />
+    <div className="relative">
+      <textarea
+        className={`w-full border border-gray-300 rounded-md p-2 ${className}`}
+        value={value}
+        onChange={handleChange}
+        placeholder={placeholder || "Enter text here..."}
+        rows={rows}
+      />
+      <div className="absolute bottom-2 right-2 flex items-center gap-2">
+        {isTyping && (
+          <span className="text-xs text-gray-500">Waiting for input...</span>
+        )}
+        <button
+          onClick={handleAnalyzeClick}
+          className="bg-blue-800 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded"
+          disabled={analyzing || !value}
+        >
+          {analyzing ? "Analyzing..." : "Enhance with AI"}
+        </button>
+      </div>
+    </div>
   );
 };

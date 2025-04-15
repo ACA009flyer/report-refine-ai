@@ -1,10 +1,19 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ShiftReportForm from "@/components/ShiftReportForm";
 import ReportPreview from "@/components/ReportPreview";
 import Header from "@/components/Header";
-import { processReport } from "@/utils/reportProcessor";
+import { 
+  processReport, 
+  analyzeShiftReport,
+  extractDrivingInfo,
+  extractIncidents,
+  extractTrooperIssues,
+  extractAccidents,
+  extractWeapons
+} from "@/utils/reportProcessor";
 import { ReportData } from "@/types/report";
+import { toast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const [reportData, setReportData] = useState<ReportData>({
@@ -25,17 +34,59 @@ const Index = () => {
   const [processedReport, setProcessedReport] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState<"form" | "preview">("form");
+  const [autoFilledOnce, setAutoFilledOnce] = useState(false);
 
   const handleInputChange = (field: keyof ReportData, value: string) => {
     setReportData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleAnalyzeText = async (text: string) => {
+    // Set analyzing state
+    setReportData(prev => ({ ...prev, isAnalyzing: true }));
+    
+    try {
+      // Get enhanced text and extracted fields
+      const processed = await processReport(text);
+      
+      // Extract information for different sections
+      const drivingInfo = extractDrivingInfo(text);
+      const incidents = extractIncidents(text);
+      const trooperIssues = extractTrooperIssues(text);
+      const accidents = extractAccidents(text);
+      const weapons = extractWeapons(text);
+      
+      // Update all fields at once
+      setReportData(prev => ({
+        ...prev,
+        activityDescription: processed,
+        poorDrivers: prev.poorDrivers || drivingInfo,
+        incidents: prev.incidents || incidents,
+        trooperIssues: prev.trooperIssues || trooperIssues,
+        accident: prev.accident || accidents,
+        weapons: prev.weapons || weapons,
+        isAnalyzing: false
+      }));
+
+      if (!autoFilledOnce) {
+        toast({
+          title: "Report Analysis Complete",
+          description: "Relevant fields have been automatically filled based on your report."
+        });
+        setAutoFilledOnce(true);
+      }
+    } catch (error) {
+      console.error("Error analyzing report:", error);
+      setReportData(prev => ({ ...prev, isAnalyzing: false }));
+    }
   };
 
   const handleSubmit = async () => {
     setIsProcessing(true);
     
     try {
-      // If the activityDescription is already well-formatted by CopilotKit,
-      // we may not need extensive processing
+      // Process the report text one final time before submission
+      const processedDescription = await processReport(reportData.activityDescription);
+      
       const fullReport = `
 **San Andreas State Troopers - Shift Report**
 
@@ -46,7 +97,7 @@ const Index = () => {
 **Driving Conditions/Incidents:** ${reportData.poorDrivers}
 
 **Shift Activity:**
-${reportData.activityDescription}
+${processedDescription}
 
 **Incidents with Personnel:** ${reportData.incidents}
 
@@ -109,6 +160,7 @@ ${reportData.activityDescription}
               onInputChange={handleInputChange} 
               onSubmit={handleSubmit}
               isProcessing={isProcessing}
+              onAnalyzeText={handleAnalyzeText}
             />
           ) : (
             <ReportPreview report={processedReport} />

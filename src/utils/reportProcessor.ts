@@ -15,16 +15,17 @@ export async function processReport(rawReport: string): Promise<string> {
   let improved = sentences.map(sentence => {
     // Fix common abbreviations and acronyms
     sentence = sentence
-      .replace(/unWL/g, "unauthorized vehicle")
-      .replace(/mod/g, "moderator")
-      .replace(/ems/g, "EMS")
-      .replace(/fbi/g, "FBI")
-      .replace(/bolo/g, "BOLO (Be On the Look Out)")
-      .replace(/pd/g, "Police Department")
-      .replace(/code 3/g, "Code 3")
-      .replace(/code three/g, "Code 3")
-      .replace(/code 5/g, "Code 5")
-      .replace(/code five/g, "Code 5");
+      .replace(/unwl/gi, "unwhitelisted vehicle")
+      .replace(/unWL/gi, "unwhitelisted vehicle")
+      .replace(/mod/gi, "moderator")
+      .replace(/ems/gi, "EMS")
+      .replace(/fbi/gi, "FBI")
+      .replace(/bolo/gi, "BOLO (Be On the Look Out)")
+      .replace(/pd/gi, "Police Department")
+      .replace(/code 3/gi, "Code 3")
+      .replace(/code three/gi, "Code 3")
+      .replace(/code 5/gi, "Code 5")
+      .replace(/code five/gi, "Code 5");
     
     // Capitalize first letter of each sentence
     sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
@@ -87,7 +88,7 @@ function formatIntoParagraphs(text: string): string {
   return paragraphs.join("\n\n");
 }
 
-// New function to extract driving information from the report
+// Function to extract driving information from the report
 export function extractDrivingInfo(text: string): string {
   if (!text) return "";
   
@@ -109,7 +110,7 @@ export function extractDrivingInfo(text: string): string {
   return relevantSentences.join(" ");
 }
 
-// New function to extract incidents with personnel
+// Function to extract incidents with personnel
 export function extractIncidents(text: string): string {
   if (!text) return "";
   
@@ -132,7 +133,7 @@ export function extractIncidents(text: string): string {
   return relevantSentences.join(" ");
 }
 
-// New function to extract issues with other troopers
+// Function to extract issues with other troopers
 export function extractTrooperIssues(text: string): string {
   if (!text) return "";
   
@@ -156,7 +157,7 @@ export function extractTrooperIssues(text: string): string {
   return relevantSentences.join(" ");
 }
 
-// New function to extract accident information
+// Function to extract accident information
 export function extractAccidents(text: string): string {
   if (!text) return "";
   
@@ -177,4 +178,45 @@ export function extractAccidents(text: string): string {
   }
   
   return relevantSentences.join(" ");
+}
+
+// Function to extract weapons information
+export function extractWeapons(text: string): string {
+  if (!text) return "";
+  
+  const weaponKeywords = [
+    /\b(?:weapon|weapons|gun|guns|pistol|rifle|shotgun|taser)\b/i,
+    /\b(?:firearm|firearms|armed|fire|shot|shots|shooting)\b/i,
+    /\b(?:discharged|discharge|pulled|draw|drew)\b/i,
+  ];
+  
+  const sentences = splitIntoSentences(text);
+  const relevantSentences = sentences.filter(sentence => 
+    weaponKeywords.some(keyword => keyword.test(sentence))
+  );
+
+  if (relevantSentences.length === 0) {
+    return "No weapons were utilized during this shift.";
+  }
+  
+  return relevantSentences.join(" ");
+}
+
+// Main function to analyze text and auto-fill all relevant fields
+export function analyzeShiftReport(text: string): {
+  enhancedText: string;
+  drivingInfo: string;
+  incidents: string;
+  trooperIssues: string;
+  accidents: string;
+  weapons: string;
+} {
+  return {
+    enhancedText: text, // Will be processed later with processReport
+    drivingInfo: extractDrivingInfo(text),
+    incidents: extractIncidents(text),
+    trooperIssues: extractTrooperIssues(text),
+    accidents: extractAccidents(text),
+    weapons: extractWeapons(text)
+  };
 }
